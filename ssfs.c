@@ -26,31 +26,17 @@ const int key =10;
 char *getExt (char fspec[]) {
     char *e = strrchr (fspec, '.');
     if (e == NULL)
-        e = ""; // fast method, could also use &(fspec[strlen(fspec)]).
+        e = "";
     return e;
 }
 
 
 void encript(char *enc){
 	if(!strcmp(enc,".") || !strcmp(enc,"..")) return;
-	int flag1=0,flag2=0;
-	for(int i=0;i < strlen(enc); i++){
-		if(enc[i] == '/'){
-			flag1 = 1;
-			flag2 = 0;
-			break;
-		}
-		if(enc[i] != '/' && flag1 == 0){
-			flag2 = 1;
-		}
-	}
 	int b=0;
 	b = strlen(getExt(enc));
 	for ( int i = 0; i < strlen(enc)-b ;i++) {
-		if(enc[i] == '/'){
-			flag1=0;
-		}
-		if((flag1==0 && enc[i] != '/') || flag2 == 1){
+		if(enc[i] != '/'){
 			for (int j = 0; j < 87; j++) {
 	     		if(enc[i] == shift[j]) {
 	        		enc[i] = shift[(j+key) % 87];
@@ -64,12 +50,10 @@ void encript(char *enc){
 void decript(char *enc){
 	if(!strcmp(enc,".") || !strcmp(enc,"..")) return;
 	int flag1=0,flag2=0;
-	
 	if(enc[0]=='e' && enc[1]=='n' && enc[2]=='c' && enc[3]=='v' && enc[4]=='1' && enc[5] == '_'){
 		flag1 = 1;
 		flag2 = 1;
 	}
-
 	int b=0;
 	b = strlen(getExt(enc));
 	for ( int i = 0; i < strlen(enc) -b ;i++) {
@@ -95,14 +79,13 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 	int res;
 	char fpath[1000];
 	char name[1000];
-	char temp[1000];
 	sprintf(name,"%s",path);
 	sprintf(fpath, "%s%s",dirpath,name);
-	strcpy(temp,fpath);
 	if(strstr(fpath,"encv1_") != NULL){
-	        char *i = strstr(temp,"encv1_");
-	        decript(i);
-        	sprintf(fpath,"%s/%s",dirpath,i);
+		char arr[1000];
+        	strcpy(arr,strstr(fpath,"encv1"));
+        	decript(arr);
+        	sprintf(fpath,"%s/%s",dirpath,arr);
 	}
 	res = lstat(fpath, stbuf);
 	if (res == -1)
@@ -126,25 +109,20 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	}
   	else
   	{
-		char temp[1000];
    		sprintf(fpath, "%s%s",dirpath,path);
-		strcpy(temp,fpath);
 		if(strstr(fpath,"encv1_") != NULL ){
-        	char *i = strstr(temp,"encv1");
-        	decript(i);
-        	sprintf(fpath,"%s/%s",dirpath,i);
+		char arr[1000];
+        	strcpy(arr,strstr(fpath,"encv1"));
+        	decript(arr);
+        	sprintf(fpath,"%s/%s",dirpath,arr);
             }
   		
   	}
-
 	int res = 0;
-
 	DIR *dp;
 	struct dirent *de;
-
 	(void) offset;
 	(void) fi;
-
 	dp = opendir(fpath);
 	if (dp == NULL)
 	return -errno;
