@@ -17,7 +17,6 @@
 #include <grp.h>
 #include <pwd.h>
 #include <time.h>
-#define bufSize 1024
 
 static const char *dirpath = "/home/haris/Documents";
 
