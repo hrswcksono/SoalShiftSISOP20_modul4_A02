@@ -17,7 +17,7 @@ Berikut adalah detail filesystem rancangan jasir:
    4. Setiap pembuatan direktori terenkripsi baru (mkdir ataupun rename) akan tercatat ke sebuah database/log berupa file.
    5. Semua file yang berada dalam direktori ter enkripsi menggunakan caesar cipher dengan key.
 
-![image]()
+![image](https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/111.png)
 
 Misal kan ada file bernama “kelincilucu.jpg” dalam directory FOTO_PENTING, dan key yang dipakai adalah 10
 “**encv1_rahasia/FOTO_PENTING/kelincilucu.jpg**” => “**encv1_rahasia/ULlL@u]AlZA(/g7D.|\_.Da_a.jpg**
@@ -53,7 +53,7 @@ Implementasi dilarang menggunakan symbolic links dan thread.
    4. Sisanya, akan dicatat dengan level INFO.
    5. Format untuk logging yaitu:
 
-![image]()
+![image](https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/222.png)
 
 
 LEVEL    : Level logging
@@ -68,5 +68,5 @@ DESC      : Deskripsi tambahan (bisa lebih dari satu, dipisahkan dengan ::)
 
 Contoh format logging nantinya seperti:
 
-![image]()
+![image](https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/333.png)
 
