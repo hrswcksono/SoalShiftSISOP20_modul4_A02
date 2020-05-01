@@ -1,7 +1,7 @@
 # SoalShiftSISOP20_modul4_A02
 
 ## Muhamad Haris W - 05111840000029
-## Muhammad Rivadhli P - 05111840000
+## Muhammad Rivadhli P - 05111840000128
 
 
 ## Soal
