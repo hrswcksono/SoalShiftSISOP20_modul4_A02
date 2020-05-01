@@ -24,22 +24,42 @@ char shift[] = "9(ku@AW1[Lmvgax6q`5Y2Ry?+sF!^HKQiBXCUSe&0M.b%rI'7d)o4~VfZ*{#:}ET
 
 const int key =10;
 
-void logsys(int level,char *call,char *info){
+void logsys(int level,char *call,const char *info){
 	FILE *log = fopen("/home/haris/Desktop/fs.log" , "a");
 	time_t now = time(0);
 	struct tm tstruct = *localtime(&now);
 	int tahun=0,bulan=0,hari=0,jam=0,menit=0,detik=0;
 	tahun = tstruct.tm_year + 1900;
-	bulan = tstruct.tm_mon;
+	bulan = tstruct.tm_mon + 1;
 	hari = tstruct.tm_mday;
 	jam = tstruct.tm_hour;
 	menit = tstruct.tm_min;
 	detik = tstruct.tm_sec;
 	if(level == 1){
-		fprintf(log, "WARNING::%d%d%d-%d:%d:%d::%s::%s\n",tahun,bulan,hari,jam,menit,detik,call,info);
+		fprintf(log, "WARNING::%02d%02d%02d-%02d:%02d:%02d::%s::%s\n",tahun%100,bulan,hari,jam,menit,detik,call,info);
 	}
 	else{
-		fprintf(log, "INFO::%d%d%d-%d:%d:%d::%s::%s\n",tahun,bulan,hari,jam,menit,detik,call,info);
+		fprintf(log, "INFO::%02d%02d%02d-%02d:%02d:%02d::%s::%s\n",tahun%100,bulan,hari,jam,menit,detik,call,info);
+	}
+	fclose(log);
+}
+
+void encryptdecrypt(char *level,  char *from , char *to){
+	FILE *log = fopen("/home/haris/Desktop/data.log" , "a");
+	time_t now = time(0);
+	struct tm tstruct = *localtime(&now);
+	int tahun=0,bulan=0,hari=0,jam=0,menit=0,detik=0;
+	tahun = tstruct.tm_year + 1900;
+	bulan = tstruct.tm_mon + 1;
+	hari = tstruct.tm_mday;
+	jam = tstruct.tm_hour;
+	menit = tstruct.tm_min;
+	detik = tstruct.tm_sec;
+	if(to != NULL){
+		fprintf(log,"%04d-%02d-%02d   %02d:%02d:%02d : %s\nform\t : %s\nto\t : %s\n",tahun,bulan,hari,jam,menit,detik,level,from,to);
+	}
+	else{
+		fprintf(log,"%04d-%02d-%02d   %02d:%02d:%02d : %s\nform\t : %s\n",tahun,bulan,hari,jam,menit,detik,level,from);
 	}
 	fclose(log);
 }
@@ -235,9 +255,6 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 	}
 	
 	res = lstat(fpath, stbuf);
-	char rr[1000];
-	strcpy(rr,path);
-	logsys(0 ,"LS" ,rr);
 	
 	if (res == -1)
 		return -errno;
@@ -249,18 +266,19 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 //Read the target of a symbolic link
 static int xmp_readlink(const char *path, char *buf, size_t size)
 {
-     int res;
-	char fpath[1000];	
-	sprintf(fpath, "%s%s",dirpath,path);
-	
-    res = readlink(fpath, buf, size - 1);
 	char rr[1000];
 	strcpy(rr,path);
 	logsys(0, "READLINK" ,rr);
+    	int res;
+	char fpath[1000];	
+	sprintf(fpath, "%s%s",dirpath,path);
+	
+    	res = readlink(fpath, buf, size - 1);
+
 	if (res == -1)
         return -errno;
-    buf[res] = '\0';
-    return 0;
+    	buf[res] = '\0';
+    	return 0;
 }
 
 
@@ -283,9 +301,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         	sprintf(fpath,"%s/%s",dirpath,encv1);
         }
   	}
-	char rr[1000];
-	strcpy(rr,path);	
-	logsys(0, "CD" , rr);
+	
 	int res = 0;
 	DIR *dp;
 	struct dirent *de;
@@ -301,7 +317,7 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   	st.st_mode = de->d_type << 12;
 	
 	if(encv1 != NULL){
-			encript1(de->d_name);
+		encript1(de->d_name);
 	}
 	
 	res = (filler(buf, de->d_name, &st, 0));
@@ -316,32 +332,33 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 static int xmp_rename(const char *from, const char *to)
 {
         int res;
-		char from1[1000];
-		char to1[1000];
-		char *ffrom1 = strstr(from,"encv1_");
-		char *fto1 = strstr(to,"encv1_");
-		char *ffrom2 = strstr(from,"encv2_");
-		char *fto2 = strstr(to,"encv2_");		
-		sprintf(from1,"%s%s",dirpath,from);
-		sprintf(to1,"%s%s",dirpath,to);
+	char from1[1000];
+	char to1[1000];
+	char *ffrom1 = strstr(from,"encv1_");
+	char *fto1 = strstr(to,"encv1_");
+	char *ffrom2 = strstr(from,"encv2_");
+	char *fto2 = strstr(to,"encv2_");		
+	sprintf(from1,"%s%s",dirpath,from);
+	sprintf(to1,"%s%s",dirpath,to);
 		
-		if(ffrom1 != NULL && fto1 == NULL){
-			char str[1000];
-			sprintf(str,"%s::%s",from,to);
-			logsys(0,"SYMLINK",str);
-		}
+	if(ffrom1 != NULL && fto1 == NULL){
+		encryptdecrypt("decrypt versi 1 RENAME", from1 , to1);
+	}
+	
+	if(fto1 != NULL && ffrom1 == NULL){
+		encryptdecrypt("encrypt versi 1 RENAME", from1 , to1);
+		decript1(fto1);
+		sprintf(to1,"%s/%s",dirpath,fto1);
+	}
+	if(ffrom2 != NULL && fto2 == NULL){
+		encryptdecrypt("decrypt versi 2 RENAME", from1 , to1);
+		getdir2(from1,0);
+	}
 		
-		if(fto1 != NULL && ffrom1 == NULL){
-			decript1(fto1);
-			sprintf(to1,"%s/%s",dirpath,fto1);
-		}
-		if(ffrom2 != NULL && fto2 == NULL){
-			getdir2(from1,0);
-		}
-		
-		if(ffrom2 == NULL && fto2 != NULL){
-			getdir2(from1,1);
-		}
+	if(ffrom2 == NULL && fto2 != NULL){
+		encryptdecrypt("encrypt versi 2 RENAME", from1 , to1);
+		getdir2(from1,1);
+	}
 		
         res = rename(from1, to1);
 		char str[1000];
@@ -357,18 +374,19 @@ static int xmp_rename(const char *from, const char *to)
 static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 		    struct fuse_file_info *fi)
 {
+	char rr[1000];
+	strcpy(rr,path);
+	logsys(0, "READ", rr);
 	int fd;
 	int res;
-    char fpath[1000];
+    	char fpath[1000];
 
 	sprintf(fpath, "%s%s",dirpath,path);
 	
 	(void) fi;
 	
 	fd = open(fpath, O_RDONLY);
-	char rr[1000];
-	strcpy(rr,path);
-	logsys(0, "READ", rr);
+
 	if (fd == -1)
 		return -errno;
 
@@ -385,23 +403,23 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 {
         int res;
-		char fpath[1000];
-		sprintf(fpath ,"%s%s",dirpath,path);
-		char rr[1000];
-		strcpy(rr,path);
-		logsys(0, "MKNOD", rr);
+	char fpath[1000];
+	sprintf(fpath ,"%s%s",dirpath,path);
+	char rr[1000];
+	strcpy(rr,path);
+	logsys(0, "MKNOD", rr);
 
-		if (S_ISREG(mode)) {
-		res = open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode);
-		if (res >= 0)
-			res = close(res);
-		}
-		else if (S_ISFIFO(mode)){
-			res = mkfifo(fpath, mode);
-		}
-		else{
-			res = mknod(fpath, mode, rdev);
-		}
+	if (S_ISREG(mode)) {
+	res = open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode);
+	if (res >= 0)
+		res = close(res);
+	}
+	else if (S_ISFIFO(mode)){
+		res = mkfifo(fpath, mode);
+	}
+	else{
+		res = mknod(fpath, mode, rdev);
+	}
 		
         if (res == -1)
                 return -errno;
@@ -411,13 +429,17 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 //Create a directory.
 static int xmp_mkdir(const char *path, mode_t mode)
 {
+	logsys(0,"MKDIR",path);
         int res;
-		char fullpath[1000];
-		sprintf(fullpath ,"%s%s",dirpath,path);
-        res = mkdir(fullpath, mode);
-		char rr[1000];
-		strcpy(rr,path);
-		logsys(0,"MKDIR",rr);
+	char fpath[1000];
+	sprintf(fpath ,"%s%s",dirpath,path);
+	if(strstr(fpath,"encv1_") != NULL){
+		encryptdecrypt("encrypt versi 1 MKDIR", fpath, NULL);
+	}
+	if(strstr(fpath,"encv2_") != NULL){
+		encryptdecrypt("encrypt versi 2 MKDIR", fpath , NULL);
+	}
+        res = mkdir(fpath, mode);
         if (res == -1)
                 return -errno;
         return 0;
@@ -426,13 +448,12 @@ static int xmp_mkdir(const char *path, mode_t mode)
 //Remove a file
 static int xmp_unlink(const char *path)
 {
+	logsys(1,"UNLINK",path);
         int res;
-		char fpath[1000];
-		sprintf(fpath,"%s%s",dirpath,path);
+	char fpath[1000];
+	sprintf(fpath,"%s%s",dirpath,path);
         res = unlink(fpath);
-		char rr[1000];
-		strcpy(rr,path);
-		logsys(1,"UNLINK",rr);
+
         if (res == -1)
                 return -errno;
         return 0;
@@ -441,13 +462,11 @@ static int xmp_unlink(const char *path)
 //Remove a directory
 static int xmp_rmdir(const char *path)
 {
+	logsys(1, "RMDIR" ,path);
         int res;
-		char fpath[1000];
-		sprintf(fpath,"%s%s",dirpath,path);
+	char fpath[1000];
+	sprintf(fpath,"%s%s",dirpath,path);
         res = rmdir(fpath);
-		char rr[1000];
-		strcpy(rr,path);
-		logsys(1,"RMDIR",rr);
         if (res == -1)
                 return -errno;
         return 0;
@@ -456,15 +475,12 @@ static int xmp_rmdir(const char *path)
 
 static int xmp_symlink(const char *from, const char *to)
 {
+	char str[1000];
+	sprintf(str,"%s::%s",from,to);
+	logsys(0,"SYMLINK",str);
         int res;
-		char from1[1000];
-		char to1[1000];
-		sprintf(from1,"%s%s",dirpath,from);
-		sprintf(to1,"%s%s",dirpath,to);
-        res = symlink(from1, to1);
-		char str[1000];
-		sprintf(str,"%s::%s",from,to);
-		logsys(0,"SYMLINK",str);
+        res = symlink(from, to);
+
         if (res == -1)
                 return -errno;
         return 0;
@@ -473,15 +489,11 @@ static int xmp_symlink(const char *from, const char *to)
 
 static int xmp_link(const char *from, const char *to)
 {
-        int res;
-		char from1[1000];
-		char to1[1000];
-		sprintf(from1,"%s%s",dirpath,from);
-		sprintf(to1,"%s%s",dirpath,to);
-        res = link(from1, to1);
 		char str[1000];
 		sprintf(str,"%s::%s",from,to);
 		logsys(0,"LINK",str);
+        int res;
+        res = link(from, to);
         if (res == -1)
                 return -errno;
         return 0;
@@ -490,13 +502,11 @@ static int xmp_link(const char *from, const char *to)
 //Change the permission bits of a file
 static int xmp_chmod(const char *path, mode_t mode)
 {
+	logsys(0,"CHMOD", path);
     int res;
-		char fpath[1000];
+	char fpath[1000];
 	sprintf(fpath,"%s%s",dirpath,path);
     res = chmod(fpath, mode);
-	char rr[1000];
-	strcpy(rr,path);
-	logsys(0,"CHMOD", rr);
     if (res == -1)
         return -errno;
     return 0;
@@ -505,29 +515,21 @@ static int xmp_chmod(const char *path, mode_t mode)
 //Change the owner and group of a file
 static int xmp_chown(const char *path, uid_t uid, gid_t gid)
 {
-    int res;
-	char fpath[1000];
-	sprintf(fpath,"%s%s",dirpath,path);
-    res = lchown(fpath, uid, gid);
-	char rr[1000];
-	strcpy(rr,path);
-	logsys(0,"CHOWN",rr);
-    if (res == -1)
-        return -errno;
+	logsys(0,"CHOWN",path);
+    	int res;
+    	res = lchown(path, uid, gid);
+    	if (res == -1)
+        	return -errno;
     return 0;
 }
 
 //Change the size of a file
 static int xmp_truncate(const char *path, off_t size)
 {
+	logsys(0,"TRUNCATE",path);
 	int res;
-	char fpath[1000];
-	sprintf(fpath,"%s%s",dirpath,path);
-	res = truncate(fpath, size);
-	char rr[1000];
-	strcpy(rr,path);
-	logsys(0,"TRUNCATE",rr);
-    if (res == -1)
+	res = truncate(path, size);
+    	if (res == -1)
         return -errno;
     return 0;
 }
@@ -535,20 +537,20 @@ static int xmp_truncate(const char *path, off_t size)
 
 static struct fuse_operations xmp_oper = {
 	
-.getattr 			= xmp_getattr,
-.readdir 			= xmp_readdir,
-.readlink			= xmp_readlink,
-.read 				= xmp_read,
-.mkdir 				= xmp_mkdir,
-.mknod 			        = xmp_mknod,
-.symlink 			= xmp_symlink,
-.unlink 			= xmp_unlink,
-.rmdir 				= xmp_rmdir,
-.rename 			= xmp_rename,
-.link 				= xmp_link,
-.chmod 			        = xmp_chmod,
-.chown 				= xmp_chown,
-.truncate 			= xmp_truncate,
+.getattr 		= xmp_getattr,
+.readdir 		= xmp_readdir,
+.readlink		= xmp_readlink,
+.read 			= xmp_read,
+.mkdir 			= xmp_mkdir,
+.mknod 			= xmp_mknod,
+.symlink 		= xmp_symlink,
+.unlink 		= xmp_unlink,
+.rmdir 			= xmp_rmdir,
+.rename 		= xmp_rename,
+.link 			= xmp_link,
+.chmod 			= xmp_chmod,
+.chown 			= xmp_chown,
+.truncate 		= xmp_truncate,
 
 };
 
