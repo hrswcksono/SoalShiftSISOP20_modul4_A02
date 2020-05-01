@@ -38,3 +38,11 @@ Kemudian buat direktori baru encv1_ dan encv2_
 Dan log nya adalah
 
 <img src="https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/Screenshot_7.png" width="500" height="350">
+
+Kemudian beberapa aktifitas yang dilakukan
+
+<img src="https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/Screenshot_10.png" width="500" height="350">
+
+Ini adalah catatan lognya
+
+<img src="https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/Screenshot_9.png" width="500" height="350">
