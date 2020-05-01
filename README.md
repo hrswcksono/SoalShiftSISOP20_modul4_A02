@@ -68,6 +68,6 @@ DESC      : Deskripsi tambahan (bisa lebih dari satu, dipisahkan dengan ::)
 
 Contoh format logging nantinya seperti:
 
-![image](https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/333.png)
+<img src="https://github.com/hrswcksono/SoalShiftSISOP20_modul4_A02/blob/master/gambar/333.png" width="100" height="100">
 
 
